@@ -1,13 +1,9 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
+import AppConfig from '@/App/index';
+import {AuthContextProvider} from '@/contexts/AuthContext';
+import {NavigationContainer} from '@react-navigation/native';
 import {ThemeProvider} from '@rneui/themed';
 import React from 'react';
-import {StatusBar, useColorScheme} from 'react-native';
+import {useColorScheme} from 'react-native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 function App(): React.JSX.Element {
@@ -16,16 +12,16 @@ function App(): React.JSX.Element {
   const backgroundStyle = {
     backgroundColor: isDarkMode ? '#393e42' : '#e1e8ee',
   };
-
   return (
-    <ThemeProvider>
+    <NavigationContainer>
       <SafeAreaProvider style={backgroundStyle}>
-        <StatusBar
-          barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-          backgroundColor={backgroundStyle.backgroundColor}
-        />
+        <ThemeProvider>
+          <AuthContextProvider>
+            <AppConfig />
+          </AuthContextProvider>
+        </ThemeProvider>
       </SafeAreaProvider>
-    </ThemeProvider>
+    </NavigationContainer>
   );
 }
 
