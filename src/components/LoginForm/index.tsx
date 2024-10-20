@@ -7,10 +7,11 @@ import {Button, Text} from '@rneui/themed';
 import {StyleSheet, View} from 'react-native';
 import Icon from '@/components/Icon';
 import {PASSWORD_REGEX} from '@/services/constants';
+import {useAuth} from '@/contexts/AuthContext';
 
 const initialValues: LoginData = {
-  email: '',
-  password: '',
+  email: 'apostolovskisimon@gmail.com',
+  password: 'Apostolot1!',
 };
 
 const schema = Yup.object().shape({
@@ -26,15 +27,19 @@ const schema = Yup.object().shape({
 });
 
 const LoginForm = () => {
+  const {logUserIn} = useAuth();
+
   return (
     <View>
-      <View style={{marginTop: 30}}>
-        <Text style={{marginBottom: 30}}>Log In with your credentials</Text>
+      <View style={styles.withMarginBottom}>
+        <Text style={styles.withMarginBottom}>
+          Log In with your credentials
+        </Text>
       </View>
       <Formik<LoginData>
         initialValues={initialValues}
         validationSchema={schema}
-        onSubmit={data => console.log(data)}>
+        onSubmit={data => logUserIn(data)}>
         {({handleSubmit}) => (
           <>
             <ValidatedInput<LoginData>
@@ -71,4 +76,5 @@ const styles = StyleSheet.create({
     width: 150,
     color: 'black',
   },
+  withMarginBottom: {marginTop: 10, marginBottom: 10},
 });

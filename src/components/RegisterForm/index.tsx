@@ -1,24 +1,21 @@
 import Icon from '@/components/Icon';
-import ValidatedCheckbox from '@/components/Inputs/ValidatedCheckbox';
 import ValidatedInput from '@/components/Inputs/ValidatedInput';
-import {useAuth} from '@/contexts/AuthContext';
 import {showToast} from '@/helpers/toast';
-import useBiometrics from '@/hooks/useBiometrics';
 import {PASSWORD_REGEX} from '@/services/constants';
-import createAccount from '@/services/firebase/createAccount';
+import {createAccount} from '@/services/firebase';
 import {FirebaseAuthError, Navigation, RegisterData} from '@/services/types';
 import {useNavigation} from '@react-navigation/native';
-import {Button, Text, Tooltip} from '@rneui/themed';
+import {Button} from '@rneui/themed';
 import {Formik} from 'formik';
 import React, {useCallback, useState} from 'react';
-import {ScrollView, StyleSheet, View} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import * as Yup from 'yup';
 
 const initialValues: RegisterData = {
-  email: 'apostolovskisimon@gmail.com',
-  password: 'Apostolot1!',
-  confirmPassword: 'Apostolot1!',
+  email: '',
+  password: '',
+  confirmPassword: '',
   confirmBiometrics: false,
 };
 
@@ -39,21 +36,14 @@ const schema = Yup.object().shape({
 });
 
 const RegisterForm = () => {
-  const {canSaveBiometrics} = useAuth();
-  const {saveCredentials} = useBiometrics();
-
   const navigation = useNavigation<Navigation>();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [tooltipOpen, setTooltipOpen] = useState(false);
 
   const onSubmit = useCallback(
     async (values: RegisterData) => {
       setIsSubmitting(true);
       try {
-        if (canSaveBiometrics && values.confirmBiometrics) {
-          await saveCredentials(values.email);
-        }
         await createAccount(values.email, values.password);
         setIsSubmitting(false);
         navigation.navigate('Welcome');
@@ -68,7 +58,7 @@ const RegisterForm = () => {
         setIsSubmitting(false);
       }
     },
-    [canSaveBiometrics, navigation, saveCredentials],
+    [navigation],
   );
 
   return (
@@ -101,34 +91,6 @@ const RegisterForm = () => {
               placeholder="Enter Password Again"
               secureTextEntry
             />
-            {/* if defice doesnt support biometrics then biometrics are ignored */}
-            {canSaveBiometrics && (
-              <View style={styles.bioInfo}>
-                <ValidatedCheckbox<RegisterData>
-                  name="confirmBiometrics"
-                  label="Use biometrics?"
-                />
-                <Tooltip
-                  visible={tooltipOpen}
-                  onOpen={() => setTooltipOpen(true)}
-                  onClose={() => setTooltipOpen(false)}
-                  containerStyle={styles.tooltip}
-                  popover={
-                    <ScrollView>
-                      <Text>
-                        After the first log in, you will be able to log in with
-                        biometrics if you prefer.
-                      </Text>
-                      <Text>
-                        Otherwise you will have to enter your credentials on
-                        each log in.
-                      </Text>
-                    </ScrollView>
-                  }>
-                  <Icon name="information-circle-outline" size={20} />
-                </Tooltip>
-              </View>
-            )}
             <Button
               loading={isSubmitting}
               disabled={isSubmitting}
@@ -149,17 +111,12 @@ const styles = StyleSheet.create({
   loginButton: {
     width: 150,
     color: 'black',
-    marginTop: 30,
+    marginTop: 10,
   },
   bioInfo: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingRight: 10,
-  },
-  tooltip: {
-    minHeight: 180,
-    paddingBottom: 10,
-    backgroundColor: 'lightgray',
   },
 });

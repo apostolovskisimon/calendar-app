@@ -3,3 +3,4 @@ export const PASSWORD_REGEX =
 
 export const SAVED_BIOMETRICS_KEY = '@app_user_saved_biometrics';
 export const SAVED_USER_LOGGED_EMAIL = '@app_user_logged_email';
+export const USER_DATA = '@app_user_data';

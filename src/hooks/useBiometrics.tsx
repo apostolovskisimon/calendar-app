@@ -1,13 +1,11 @@
-import uuid from 'react-native-uuid';
-import * as Keychain from 'react-native-keychain';
-import {useCallback} from 'react';
 import {showToast} from '@/helpers/toast';
-import {useAuth} from '@/contexts/AuthContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {SAVED_BIOMETRICS_KEY} from '@/services/constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useCallback} from 'react';
+import * as Keychain from 'react-native-keychain';
+import uuid from 'react-native-uuid';
 
 const useBiometrics = () => {
-  const {setHasBiometricsSaved} = useAuth();
   const getSupportedBiometrics = useCallback(async () => {
     try {
       const biometryType = await Keychain.getSupportedBiometryType();
@@ -24,13 +22,8 @@ const useBiometrics = () => {
           accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY,
           accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED,
         });
-        showToast(
-          'Success.',
-          'success',
-          'Biometrics successfully stored. You can log in now.',
-        );
+        showToast('Success', 'success', 'You are using biometrics.');
         await AsyncStorage.setItem(SAVED_BIOMETRICS_KEY, 'true');
-        setHasBiometricsSaved(true);
         return Promise.resolve(true);
       } catch (error: any) {
         showToast('Error saving credentials.', 'error', error?.message);
@@ -42,7 +35,7 @@ const useBiometrics = () => {
         return Promise.resolve(false);
       }
     },
-    [setHasBiometricsSaved],
+    [],
   );
   // Function to retrieve credentials with biometric authentication
   const getCredentialsWithBiometry = useCallback(async () => {
@@ -65,16 +58,15 @@ const useBiometrics = () => {
     }
   }, []);
 
-  // Example usage
   const saveCredentials = useCallback(
-    async (email: string) => {
+    async (email: string, password: string) => {
       const biometrySupported = await getSupportedBiometrics();
 
-      if (biometrySupported) {
-        const pwHash = uuid.v4().toString();
-        // Save credentials with biometric protection
-        return await saveCredentialsWithBiometry(email, pwHash);
-      }
+      // TODO: Check for support?
+      // if (biometrySupported) {
+      // TODO: Would be a good idea to hash/encrypt the keychain saved password
+      return await saveCredentialsWithBiometry(email, password);
+      // }
     },
     [getSupportedBiometrics, saveCredentialsWithBiometry],
   );
