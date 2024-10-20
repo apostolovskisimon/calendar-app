@@ -1,12 +1,17 @@
 import LoginForm from '@/components/LoginForm';
+import {useAuth} from '@/contexts/AuthContext';
 import {PublicScreenProps} from '@/services/types';
 import {Text, Theme} from '@rneui/base';
 import {useTheme} from '@rneui/themed';
-import React, {FC} from 'react';
-import {Pressable, StyleSheet} from 'react-native';
+import React, {FC, useCallback, useState} from 'react';
+import {Pressable, RefreshControl, StyleSheet} from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
-const WelcomeScreen: FC<PublicScreenProps> = ({navigation}) => {
+const LandingScreen: FC<PublicScreenProps> = ({navigation}) => {
+  const {tryLogInUser} = useAuth();
+
+  const [refreshing, setRefreshing] = useState(false);
+
   const {theme} = useTheme();
   const styles = createStyles(theme);
 
@@ -14,8 +19,17 @@ const WelcomeScreen: FC<PublicScreenProps> = ({navigation}) => {
     navigation.navigate('Register');
   };
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    tryLogInUser(() => setRefreshing(false));
+  }, [tryLogInUser]);
+
   return (
-    <KeyboardAwareScrollView style={styles.page}>
+    <KeyboardAwareScrollView
+      style={styles.page}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }>
       <Text style={styles.welcome}>
         <Text style={styles.welcomeBold}>THE</Text> Calendar App
       </Text>
@@ -36,7 +50,7 @@ const WelcomeScreen: FC<PublicScreenProps> = ({navigation}) => {
   );
 };
 
-export default WelcomeScreen;
+export default LandingScreen;
 
 const createStyles = (theme: Theme) =>
   StyleSheet.create({

@@ -7,7 +7,10 @@ export type LoginData = {
   password: string;
 };
 
-export type RegisterData = LoginData & {confirmPassword: string};
+export type RegisterData = LoginData & {
+  confirmPassword: string;
+  confirmBiometrics: boolean;
+};
 
 export type InputProps<T extends object> = {
   name: keyof T;
@@ -19,9 +22,12 @@ export type InputProps<T extends object> = {
   IconRight?: ReactNode;
 };
 
-type PublicStackParamList = {
+export type PublicStackParamList = {
   Welcome: undefined;
   Register: undefined;
+  'Complete Registration': {
+    email: string;
+  };
 };
 
 export type PublicScreenProps = NativeStackScreenProps<PublicStackParamList>;
@@ -31,4 +37,8 @@ export type FirebaseAuthError = {
     code: string;
     message: string;
   };
+};
+
+export type Navigation = {
+  navigate: (value: string, params?: Object) => void;
 };

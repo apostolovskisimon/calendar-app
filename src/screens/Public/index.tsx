@@ -1,6 +1,7 @@
 import Header from '@/components/Header';
+import CompleteRegistration from '@/screens/Public/CompleteRegistration';
 import RegisterScreen from '@/screens/Public/RegisterScreen';
-import WelcomeScreen from '@/screens/Public/WelcomeScreen';
+import LandingScreen from '@/screens/Public/LandingScreen';
 import {
   createNativeStackNavigator,
   NativeStackHeaderProps,
@@ -14,6 +15,13 @@ const PublicScreens = () => {
     return <Header {...props} />;
   }, []);
 
+  const HeaderComponentWelcome = useCallback(
+    (props: NativeStackHeaderProps) => {
+      return <Header isisLandingScreen {...props} />;
+    },
+    [],
+  );
+
   return (
     <Stack.Navigator
       screenOptions={{
@@ -21,14 +29,21 @@ const PublicScreens = () => {
       }}>
       <Stack.Screen
         name="Welcome"
-        component={WelcomeScreen}
+        component={LandingScreen}
         options={{
-          header: HeaderComponent,
+          header: HeaderComponentWelcome,
         }}
       />
       <Stack.Screen
         name="Register"
         component={RegisterScreen}
+        options={{
+          header: HeaderComponent,
+        }}
+      />
+      <Stack.Screen
+        name="Complete Registration"
+        component={CompleteRegistration}
         options={{
           header: HeaderComponent,
         }}

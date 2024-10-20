@@ -8,6 +8,7 @@ type Props = {
   centerText?: string;
   rightText?: string;
   customStyle?: StyleProp<TextStyle>;
+  isisLandingScreen?: boolean;
 };
 
 const Header: FC<NativeStackHeaderProps & Props> = ({
@@ -19,12 +20,13 @@ const Header: FC<NativeStackHeaderProps & Props> = ({
   route,
   centerText = route.name,
   navigation,
+  isisLandingScreen = false,
 }) => {
   return (
     <ElementsHeader
       containerStyle={styles.headerContainer}
       leftComponent={
-        navigation.canGoBack() ? (
+        !isisLandingScreen && navigation.canGoBack() ? (
           <>
             <Pressable
               hitSlop={12}

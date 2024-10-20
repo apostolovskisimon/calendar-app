@@ -5,9 +5,7 @@ import React from 'react';
 import {StyleSheet} from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
-type Props = {};
-
-const RegisterScreen = (props: Props) => {
+const RegisterScreen = () => {
   const {theme} = useTheme();
   const styles = createStyles(theme);
 

@@ -3,7 +3,7 @@ import {InputProps} from '@/services/types';
 import {Theme} from '@rneui/base';
 import {Input, useTheme} from '@rneui/themed';
 import {useFormikContext} from 'formik';
-import React, {useState} from 'react';
+import React, {useState, memo} from 'react';
 import {Keyboard, Pressable, StyleSheet, View} from 'react-native';
 
 const ValidatedInput = <T extends object>({
