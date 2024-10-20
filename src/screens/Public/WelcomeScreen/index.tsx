@@ -1,13 +1,10 @@
 import LoginForm from '@/components/LoginForm';
 import {PublicScreenProps} from '@/services/types';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {Text, Theme} from '@rneui/base';
 import {useTheme} from '@rneui/themed';
 import React, {FC} from 'react';
 import {Pressable, StyleSheet} from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-
-type Props = {};
 
 const WelcomeScreen: FC<PublicScreenProps> = ({navigation}) => {
   const {theme} = useTheme();

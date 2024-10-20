@@ -1,5 +1,4 @@
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {IconNode} from '@rneui/base';
 import {ReactNode} from 'react';
 import {KeyboardTypeOptions} from 'react-native';
 
@@ -7,6 +6,8 @@ export type LoginData = {
   email: string;
   password: string;
 };
+
+export type RegisterData = LoginData & {confirmPassword: string};
 
 export type InputProps<T extends object> = {
   name: keyof T;
@@ -24,3 +25,10 @@ type PublicStackParamList = {
 };
 
 export type PublicScreenProps = NativeStackScreenProps<PublicStackParamList>;
+
+export type FirebaseAuthError = {
+  userInfo: {
+    code: string;
+    message: string;
+  };
+};

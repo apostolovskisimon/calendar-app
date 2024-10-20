@@ -6,6 +6,7 @@ import ValidatedInput from '@/components/Inputs/ValidatedInput';
 import {Button, Text} from '@rneui/themed';
 import {StyleSheet, View} from 'react-native';
 import Icon from '@/components/Icon';
+import {PASSWORD_REGEX} from '@/services/constants';
 
 const initialValues: LoginData = {
   email: '',
@@ -17,16 +18,16 @@ const schema = Yup.object().shape({
     .email('Enter a valid email address.')
     .required('Email is required.'),
   password: Yup.string()
-    .required('Passwrod is required.')
+    .required('Password is required.')
     .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/,
+      PASSWORD_REGEX,
       'Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and One Special Case Character',
     ),
 });
 
 const LoginForm = () => {
   return (
-    <View style={styles.loginForm}>
+    <View>
       <View style={{marginTop: 30}}>
         <Text style={{marginBottom: 30}}>Log In with your credentials</Text>
       </View>
@@ -66,9 +67,6 @@ const LoginForm = () => {
 export default LoginForm;
 
 const styles = StyleSheet.create({
-  loginForm: {
-    marginTop: 30,
-  },
   loginButton: {
     width: 150,
     color: 'black',

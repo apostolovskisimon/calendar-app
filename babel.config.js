@@ -16,6 +16,7 @@ module.exports = {
           '@/styles': './src/styles',
           '@/routes': './src/routes',
           '@/services': './src/services',
+          '@/helpers': './src/helpers',
           '@/hooks': './src/hooks',
           '@/shared': './src/shared',
         },
