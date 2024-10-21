@@ -16,8 +16,6 @@ const ValidatedCheckbox = <T extends object>({
   const {theme} = useTheme();
   const styles = createStyles(theme);
 
-  console.log(label);
-
   return (
     <View>
       <View>

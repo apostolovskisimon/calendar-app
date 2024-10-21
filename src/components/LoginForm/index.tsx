@@ -27,7 +27,7 @@ const schema = Yup.object().shape({
 });
 
 const LoginForm = () => {
-  const {logUserIn} = useAuth();
+  const {submitCredentials} = useAuth();
 
   return (
     <View>
@@ -39,7 +39,7 @@ const LoginForm = () => {
       <Formik<LoginData>
         initialValues={initialValues}
         validationSchema={schema}
-        onSubmit={data => logUserIn(data)}>
+        onSubmit={data => submitCredentials(data)}>
         {({handleSubmit}) => (
           <>
             <ValidatedInput<LoginData>

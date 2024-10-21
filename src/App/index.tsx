@@ -1,16 +1,16 @@
 import {useAuth} from '@/contexts/AuthContext';
+import PrivateScreens from '@/screens/Private';
 import PublicScreens from '@/screens/Public';
 import React from 'react';
 
 const AppConfig = () => {
-  const {isLoggedIn} = useAuth();
+  const {user} = useAuth();
 
-  // if user isn't logged in then show him the public screen for setting up an account or logging in
-  if (!isLoggedIn) {
-    return <PublicScreens />;
+  if (!!user && user.email) {
+    return <PrivateScreens />;
   }
-
-  return null;
+  // if user isn't logged in then show him the public screen for setting up an account or logging in
+  return <PublicScreens />;
 };
 
 export default AppConfig;

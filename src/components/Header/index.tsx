@@ -6,7 +6,7 @@ import {Pressable, StyleProp, StyleSheet, TextStyle} from 'react-native';
 type Props = {
   leftText?: string;
   centerText?: string;
-  rightText?: string;
+  rightText?: boolean;
   customStyle?: StyleProp<TextStyle>;
   isisLandingScreen?: boolean;
 };
@@ -21,6 +21,7 @@ const Header: FC<NativeStackHeaderProps & Props> = ({
   centerText = route.name,
   navigation,
   isisLandingScreen = false,
+  rightText,
 }) => {
   return (
     <ElementsHeader
@@ -41,10 +42,22 @@ const Header: FC<NativeStackHeaderProps & Props> = ({
           </>
         ) : undefined
       }
-      centerComponent={{
-        text: centerText,
-        style: customStyle,
-      }}
+      centerComponent={
+        !rightText
+          ? {
+              text: centerText,
+              style: customStyle,
+            }
+          : undefined
+      }
+      rightComponent={
+        rightText
+          ? {
+              text: centerText,
+              style: customStyle,
+            }
+          : undefined
+      }
     />
   );
 };

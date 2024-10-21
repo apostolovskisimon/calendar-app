@@ -1,5 +1,5 @@
 import {showToast} from '@/helpers/toast';
-import {SAVED_BIOMETRICS_KEY} from '@/services/constants';
+import {IS_USING_BIOMETRICS} from '@/services/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useCallback} from 'react';
 import * as Keychain from 'react-native-keychain';
@@ -23,7 +23,7 @@ const useBiometrics = () => {
           accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED,
         });
         showToast('Success', 'success', 'You are using biometrics.');
-        await AsyncStorage.setItem(SAVED_BIOMETRICS_KEY, 'true');
+        await AsyncStorage.setItem(IS_USING_BIOMETRICS, 'true');
         return Promise.resolve(true);
       } catch (error: any) {
         showToast('Error saving credentials.', 'error', error?.message);

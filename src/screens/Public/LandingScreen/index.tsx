@@ -8,7 +8,7 @@ import {Pressable, RefreshControl, StyleSheet} from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 const LandingScreen: FC<PublicScreenProps> = ({navigation}) => {
-  const {tryLogInUser} = useAuth();
+  const {askForBiometrics} = useAuth();
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -21,8 +21,8 @@ const LandingScreen: FC<PublicScreenProps> = ({navigation}) => {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    tryLogInUser(() => setRefreshing(false));
-  }, [tryLogInUser]);
+    askForBiometrics(setRefreshing);
+  }, [askForBiometrics]);
 
   return (
     <KeyboardAwareScrollView
