@@ -43,7 +43,9 @@ const AuthContext = createContext<AuthState>(initialState);
 
 const AuthContextProvider = ({children}: {children: ReactNode}) => {
   const [loginData, setLoginData] = useState<LoginData | null>(null);
-  const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
+  const [user, setUser] = useState<Partial<FirebaseAuthTypes.User> | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [showBiometricsConfirmModal, setShowBiometricsConfirmModal] =
     useState(false);
@@ -55,19 +57,22 @@ const AuthContextProvider = ({children}: {children: ReactNode}) => {
       if (email && password) {
         if (!isLoading) setIsLoading(true);
         try {
-          const userData = await signInWithEmail(email, password);
+          // const userData = await signInWithEmail(email, password);
 
-          if (userData && userData.user) {
-            await AsyncStorage.setItem(
-              USER_DATA,
-              JSON.stringify(userData.user),
-            );
-            setUser(userData.user);
-            // returns for landing screen callback
-            return Promise.resolve(userData.user);
+          const newUser = {email, password};
+          await AsyncStorage.setItem(USER_DATA, JSON.stringify(newUser));
+          setUser(newUser);
+          // if (userData && userData.user) {
+          //   await AsyncStorage.setItem(
+          //     USER_DATA,
+          //     JSON.stringify(userData.user),
+          //   );
+          //   setUser(userData.user);
+          //   // returns for landing screen callback
+          //   return Promise.resolve(userData.user);
 
-            // navigate to public stack
-          }
+          // navigate to public stack
+          // }
         } catch (error: any) {
           showToast('Error', 'error', error.userInfo?.message);
           return Promise.reject(error.userInfo?.message);
@@ -83,6 +88,9 @@ const AuthContextProvider = ({children}: {children: ReactNode}) => {
 
   const askForBiometrics = useCallback(
     async (loader?: Dispatch<SetStateAction<boolean>>) => {
+      if (user) {
+        return;
+      }
       try {
         setIsLoading(true);
         const credentials = await getCredentialsWithBiometry();
@@ -104,7 +112,7 @@ const AuthContextProvider = ({children}: {children: ReactNode}) => {
         setIsLoading(false);
       }
     },
-    [getCredentialsWithBiometry, loginToFirebase],
+    [getCredentialsWithBiometry, loginToFirebase, user],
   );
 
   const userAcceptsBiometrics = useCallback(async () => {
