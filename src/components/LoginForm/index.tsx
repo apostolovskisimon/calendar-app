@@ -27,7 +27,7 @@ const schema = Yup.object().shape({
 });
 
 const LoginForm = () => {
-  const {submitCredentials} = useAuth();
+  const {submitCredentials, isLoading} = useAuth();
 
   return (
     <View>
@@ -58,6 +58,8 @@ const LoginForm = () => {
               secureTextEntry
             />
             <Button
+              loading={isLoading}
+              disabled={isLoading}
               containerStyle={styles.loginButton}
               onPress={() => handleSubmit()}>
               Log In

@@ -8,7 +8,7 @@ import {Pressable, RefreshControl, StyleSheet} from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 const LandingScreen: FC<PublicScreenProps> = ({navigation}) => {
-  const {askForBiometrics} = useAuth();
+  const {askForBiometrics, isLoading} = useAuth();
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -28,7 +28,11 @@ const LandingScreen: FC<PublicScreenProps> = ({navigation}) => {
     <KeyboardAwareScrollView
       style={styles.page}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        // also shows the loading state while waiting or submitting from biometrics
+        <RefreshControl
+          refreshing={isLoading || refreshing}
+          onRefresh={onRefresh}
+        />
       }>
       <Text style={styles.welcome}>
         <Text style={styles.welcomeBold}>THE</Text> Calendar App

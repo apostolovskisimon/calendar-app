@@ -42,3 +42,9 @@ export type FirebaseAuthError = {
 export type Navigation = {
   navigate: (value: string, params?: Object) => void;
 };
+
+export type TabBarIconProps = {
+  focused: boolean;
+  color: string;
+  size: number;
+};

@@ -1,37 +1,105 @@
-import Header from '@/components/Header';
+import Icon from '@/components/Icon';
 import Events from '@/screens/Private/Events';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import Profile from '@/screens/Private/Profile';
+import {TabBarIconProps} from '@/services/types';
 import {
-  createNativeStackNavigator,
-  NativeStackHeaderProps,
-} from '@react-navigation/native-stack';
-import React, {useCallback} from 'react';
+  BottomTabHeaderProps,
+  createBottomTabNavigator,
+} from '@react-navigation/bottom-tabs';
+import {Theme} from '@rneui/base';
+import {Header, useTheme} from '@rneui/themed';
+import React, {FC, useCallback} from 'react';
+import {StyleSheet} from 'react-native';
 
 const Tab = createBottomTabNavigator();
 
 const PrivateScreens = () => {
-  const HeaderComponent = useCallback((props: NativeStackHeaderProps) => {
-    return <Header {...props} rightText />;
-  }, []);
+  const PrivateHeader = useCallback(
+    (props: BottomTabHeaderProps) => (
+      <PrivateHeaderComponent routeName={props.route.name} />
+    ),
+    [],
+  );
 
-  const HeaderComponentWelcome = useCallback(
-    (props: NativeStackHeaderProps) => {
-      return <Header rightText isisLandingScreen {...props} />;
+  const TabBarIcon = useCallback(
+    (props: TabBarIconProps & {iconName: string}) => {
+      return <TabBarIconComponent {...props} />;
     },
     [],
   );
+
+  const {theme} = useTheme();
+
+  const styles = createStyles(theme);
 
   return (
     <Tab.Navigator screenOptions={{}}>
       <Tab.Screen
         name="Events"
         component={Events}
-        // options={{
-        //   header: HeaderComponentWelcome,
-        // }}
+        options={{
+          header: PrivateHeader,
+          tabBarIcon: props =>
+            TabBarIcon({...props, iconName: 'calendar-outline'}),
+          tabBarStyle: styles.tabBarStyle,
+          tabBarLabelStyle: styles.tabBarLabel,
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={Profile}
+        options={{
+          header: PrivateHeader,
+          tabBarIcon: props =>
+            TabBarIcon({...props, iconName: 'person-outline'}),
+          tabBarStyle: styles.tabBarStyle,
+          tabBarLabelStyle: styles.tabBarLabel,
+        }}
       />
     </Tab.Navigator>
   );
 };
 
 export default PrivateScreens;
+
+const TabBarIconComponent: FC<TabBarIconProps & {iconName: string}> = ({
+  focused,
+  iconName,
+}) => {
+  const {theme} = useTheme();
+  return (
+    <Icon
+      name={iconName}
+      color={focused ? theme.colors.success : theme.colors.white}
+      size={30}
+    />
+  );
+};
+
+// type mismatch, for time sake making a simple header inside like the public one
+const PrivateHeaderComponent: FC<{routeName: string}> = ({routeName = ''}) => {
+  const {theme} = useTheme();
+  const styles = createStyles(theme);
+  return (
+    <Header
+      containerStyle={styles.container}
+      centerComponent={{text: routeName, style: styles.text}}
+    />
+  );
+};
+
+const createStyles = (theme: Theme) =>
+  StyleSheet.create({
+    container: {height: 110, alignItems: 'center'},
+    text: {fontSize: 24, color: theme.colors.white, textAlign: 'left'},
+    tabBarLabel: {
+      color: theme.colors.white,
+      fontWeight: 'bold',
+      fontSize: 16,
+    },
+    tabBarStyle: {
+      backgroundColor: theme.colors.secondary,
+      height: 80,
+      paddingBottom: 5,
+    },
+  });

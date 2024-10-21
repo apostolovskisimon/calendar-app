@@ -4,7 +4,7 @@ import {IS_USING_BIOMETRICS, USER_DATA} from '@/services/constants';
 import {signInWithEmail} from '@/services/firebase';
 import {LoginData} from '@/services/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import auth, {FirebaseAuthTypes} from '@react-native-firebase/auth';
+import {FirebaseAuthTypes} from '@react-native-firebase/auth';
 import {Theme} from '@rneui/base';
 import {Button, Overlay, Text, useTheme} from '@rneui/themed';
 import React, {
@@ -25,19 +25,26 @@ type AuthState = {
   askForBiometrics: (
     callback: Dispatch<SetStateAction<boolean>>,
   ) => Promise<void>;
+  isLoading: boolean;
 };
 
 const initialState: AuthState = {
   user: null,
   submitCredentials: async () => {},
   askForBiometrics: async () => {},
+  isLoading: false,
 };
 
 const AuthContext = createContext<AuthState>(initialState);
 
+/**
+ *  USER IS ONLY SET AFTER SUBMITTING BIOMETRICS OR MANUAL LOGIN
+ */
+
 const AuthContextProvider = ({children}: {children: ReactNode}) => {
   const [loginData, setLoginData] = useState<LoginData | null>(null);
   const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [showBiometricsConfirmModal, setShowBiometricsConfirmModal] =
     useState(false);
 
@@ -46,6 +53,7 @@ const AuthContextProvider = ({children}: {children: ReactNode}) => {
   const loginToFirebase = useCallback(
     async (email: string | undefined, password: string | undefined) => {
       if (email && password) {
+        if (!isLoading) setIsLoading(true);
         try {
           const userData = await signInWithEmail(email, password);
 
@@ -63,17 +71,20 @@ const AuthContextProvider = ({children}: {children: ReactNode}) => {
         } catch (error: any) {
           showToast('Error', 'error', error.userInfo?.message);
           return Promise.reject(error.userInfo?.message);
+        } finally {
+          setIsLoading(false);
         }
       } else {
         showToast('Error', 'error', 'No credentials.');
       }
     },
-    [],
+    [isLoading],
   );
 
   const askForBiometrics = useCallback(
     async (loader?: Dispatch<SetStateAction<boolean>>) => {
       try {
+        setIsLoading(true);
         const credentials = await getCredentialsWithBiometry();
         if (credentials) {
           const {password, username: email} = credentials;
@@ -90,6 +101,7 @@ const AuthContextProvider = ({children}: {children: ReactNode}) => {
         showToast('Error', 'error', error);
       } finally {
         loader && loader(false);
+        setIsLoading(false);
       }
     },
     [getCredentialsWithBiometry, loginToFirebase],
@@ -114,9 +126,6 @@ const AuthContextProvider = ({children}: {children: ReactNode}) => {
     await AsyncStorage.setItem(IS_USING_BIOMETRICS, 'false');
     loginToFirebase(loginData?.email, loginData?.password);
   }, [loginData?.email, loginData?.password, loginToFirebase]);
-
-  // TODO: Check auth flow, 1st sign in to firebase, then if credentials ok, open modal to confirm biometrics, if accept, show biometrics, else continue
-  // TODO: after this, on next open immediatly show biometrics with silent auto login (if using biometrics, else manual login (no ask modal biometrics))
 
   const submitCredentials = useCallback(
     async ({email, password}: LoginData) => {
@@ -152,13 +161,6 @@ const AuthContextProvider = ({children}: {children: ReactNode}) => {
     [askForBiometrics, userContinuesWithoutBiometrics],
   );
 
-  const onAuthStateChanged = useCallback(
-    (userData: FirebaseAuthTypes.User | null) => {
-      setUser(userData);
-    },
-    [],
-  );
-
   useEffect(() => {
     const getBiometricsIfSaved = async () => {
       const isUsingBiometrics = await AsyncStorage.getItem(IS_USING_BIOMETRICS);
@@ -169,11 +171,6 @@ const AuthContextProvider = ({children}: {children: ReactNode}) => {
     getBiometricsIfSaved();
   }, [askForBiometrics]);
 
-  useEffect(() => {
-    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-    return subscriber; // unsubscribe on unmount
-  }, [onAuthStateChanged]);
-
   const {theme} = useTheme();
   const styles = createStyles(theme);
   return (
@@ -182,6 +179,7 @@ const AuthContextProvider = ({children}: {children: ReactNode}) => {
         user,
         submitCredentials,
         askForBiometrics,
+        isLoading,
       }}>
       {showBiometricsConfirmModal && (
         <Overlay

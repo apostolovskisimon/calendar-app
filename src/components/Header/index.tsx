@@ -3,6 +3,7 @@ import {NativeStackHeaderProps} from '@react-navigation/native-stack';
 import {Header as ElementsHeader} from '@rneui/themed';
 import React, {FC, memo} from 'react';
 import {Pressable, StyleProp, StyleSheet, TextStyle} from 'react-native';
+
 type Props = {
   leftText?: string;
   centerText?: string;
