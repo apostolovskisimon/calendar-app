@@ -1,4 +1,4 @@
-import Calendar from '@/components/Events/Calendar';
+import Calendar from '@/components/Calendar/Calendar';
 import {Text} from '@rneui/themed';
 import React from 'react';
 

@@ -1,4 +1,5 @@
 import Icon from '@/components/Icon';
+import {EventsContextProvider} from '@/contexts/EventsContext';
 import Events from '@/screens/Private/Events';
 import Profile from '@/screens/Private/Profile';
 import {TabBarIconProps} from '@/services/types';
@@ -33,30 +34,32 @@ const PrivateScreens = () => {
   const styles = createStyles(theme);
 
   return (
-    <Tab.Navigator screenOptions={{}}>
-      <Tab.Screen
-        name="Events"
-        component={Events}
-        options={{
-          header: PrivateHeader,
-          tabBarIcon: props =>
-            TabBarIcon({...props, iconName: 'calendar-outline'}),
-          tabBarStyle: styles.tabBarStyle,
-          tabBarLabelStyle: styles.tabBarLabel,
-        }}
-      />
-      <Tab.Screen
-        name="Profile"
-        component={Profile}
-        options={{
-          header: PrivateHeader,
-          tabBarIcon: props =>
-            TabBarIcon({...props, iconName: 'person-outline'}),
-          tabBarStyle: styles.tabBarStyle,
-          tabBarLabelStyle: styles.tabBarLabel,
-        }}
-      />
-    </Tab.Navigator>
+    <EventsContextProvider>
+      <Tab.Navigator screenOptions={{}}>
+        <Tab.Screen
+          name="Events"
+          component={Events}
+          options={{
+            header: PrivateHeader,
+            tabBarIcon: props =>
+              TabBarIcon({...props, iconName: 'calendar-outline'}),
+            tabBarStyle: styles.tabBarStyle,
+            tabBarLabelStyle: styles.tabBarLabel,
+          }}
+        />
+        <Tab.Screen
+          name="Profile"
+          component={Profile}
+          options={{
+            header: PrivateHeader,
+            tabBarIcon: props =>
+              TabBarIcon({...props, iconName: 'person-outline'}),
+            tabBarStyle: styles.tabBarStyle,
+            tabBarLabelStyle: styles.tabBarLabel,
+          }}
+        />
+      </Tab.Navigator>
+    </EventsContextProvider>
   );
 };
 

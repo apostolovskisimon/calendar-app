@@ -1,3 +1,4 @@
+import {FirebaseAuthTypes} from '@react-native-firebase/auth';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {ReactNode} from 'react';
 import {KeyboardTypeOptions} from 'react-native';
@@ -47,4 +48,19 @@ export type TabBarIconProps = {
   focused: boolean;
   color: string;
   size: number;
+};
+
+export type User = Partial<FirebaseAuthTypes.User> | null;
+
+export type Event = {
+  id?: string;
+  startDate: Date | null;
+  endDate: Date | null;
+  title: string | null;
+};
+
+export type EventModalState = {
+  open: boolean;
+  id: string | null;
+  startDate: Date | null;
 };

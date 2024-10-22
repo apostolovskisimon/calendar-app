@@ -2,7 +2,7 @@ import {showToast} from '@/helpers/toast';
 import useBiometrics from '@/hooks/useBiometrics';
 import {IS_USING_BIOMETRICS, USER_DATA} from '@/services/constants';
 import {signInWithEmail} from '@/services/firebase';
-import {LoginData} from '@/services/types';
+import {LoginData, User} from '@/services/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {FirebaseAuthTypes} from '@react-native-firebase/auth';
 import {Theme} from '@rneui/base';
@@ -20,7 +20,7 @@ import React, {
 import {StyleSheet, View} from 'react-native';
 
 type AuthState = {
-  user: FirebaseAuthTypes.User | null;
+  user: User;
   submitCredentials: (loginData: LoginData) => Promise<void>;
   askForBiometrics: (
     callback: Dispatch<SetStateAction<boolean>>,
@@ -43,25 +43,30 @@ const AuthContext = createContext<AuthState>(initialState);
 
 const AuthContextProvider = ({children}: {children: ReactNode}) => {
   const [loginData, setLoginData] = useState<LoginData | null>(null);
-  const [user, setUser] = useState<Partial<FirebaseAuthTypes.User> | null>(
-    null,
-  );
+  const [user, setUser] = useState<User>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showBiometricsConfirmModal, setShowBiometricsConfirmModal] =
     useState(false);
 
   const {getCredentialsWithBiometry, saveCredentials} = useBiometrics();
 
+  /**
+   * Firebase can limit how many times you can login per day,
+   * as a workarount, once the user logs in his firebase accaunt data is saved in asynstorage
+   * then on each app start we ask for biometrics that compare
+   */
   const loginToFirebase = useCallback(
     async (email: string | undefined, password: string | undefined) => {
       if (email && password) {
         if (!isLoading) setIsLoading(true);
         try {
-          // const userData = await signInWithEmail(email, password);
+          const userData = await signInWithEmail(email, password);
+          await AsyncStorage.setItem(USER_DATA, JSON.stringify(userData.user));
+          setUser(userData.user);
 
-          const newUser = {email, password};
-          await AsyncStorage.setItem(USER_DATA, JSON.stringify(newUser));
-          setUser(newUser);
+          // const newUser = {email, password};
+          // await AsyncStorage.setItem(USER_DATA, JSON.stringify(newUser));
+          // setUser(newUser);
           // if (userData && userData.user) {
           //   await AsyncStorage.setItem(
           //     USER_DATA,
@@ -69,7 +74,7 @@ const AuthContextProvider = ({children}: {children: ReactNode}) => {
           //   );
           //   setUser(userData.user);
           //   // returns for landing screen callback
-          //   return Promise.resolve(userData.user);
+          return Promise.resolve(userData.user);
 
           // navigate to public stack
           // }
@@ -91,11 +96,19 @@ const AuthContextProvider = ({children}: {children: ReactNode}) => {
       if (user) {
         return;
       }
+
       try {
         setIsLoading(true);
         const credentials = await getCredentialsWithBiometry();
         if (credentials) {
           const {password, username: email} = credentials;
+          const savedData = await AsyncStorage.getItem(USER_DATA);
+          const savedUserData = savedData ? JSON.parse(savedData) : null;
+          if (savedUserData && savedUserData.email) {
+            // user is already logged in so we just set it to get in the private screens
+            setUser(savedUserData);
+            return;
+          }
           // use keychain credentials to log in
           await loginToFirebase(email, password);
         } else {
