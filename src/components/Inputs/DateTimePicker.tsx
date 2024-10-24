@@ -1,42 +1,44 @@
-import {Event} from '@/services/types';
 import {Theme} from '@rneui/base';
 import {Button, Text, useTheme} from '@rneui/themed';
 import dayjs from 'dayjs';
-import {useFormikContext} from 'formik';
-import React, {FC, useMemo, useState} from 'react';
-import {Dimensions, StyleSheet, View} from 'react-native';
+import {FormikProps} from 'formik';
+import React, {useMemo, useState} from 'react';
+import {StyleSheet, View} from 'react-native';
 import DatePicker from 'react-native-date-picker';
 
-type Props = {
-  name: keyof Event; // hard coded, but should be dynamic
+type Props<T extends object> = {
+  name: keyof T; // hard coded, but should be dynamic
   label: string;
   required?: boolean;
+  formik: FormikProps<T>;
 };
 
-const DateTimePicker: FC<Props> = ({name, label, required}) => {
+const DateTimePicker = <T extends object>({
+  name,
+  label,
+  required,
+  formik,
+}: Props<T>) => {
   const [openPicker, setOpenPicker] = useState(false);
 
   const {theme} = useTheme();
   const styles = createStyles(theme);
 
-  const formik = useFormikContext<Event>();
-
-  const value: any = useMemo(() => {
-    const val = formik.values[name];
-    console.log({val});
-
+  const {values, errors, touched, setFieldValue} = formik;
+  const value: Date | null = useMemo(() => {
+    const val = values[name];
     if (val && dayjs(val as string | Date).isValid()) {
-      return dayjs(value).toDate();
+      return dayjs(val as string | Date).toDate();
     }
     return null;
-  }, [formik.values, name]);
+  }, [name, values]);
 
   const error = useMemo(() => {
-    if (formik.touched[name] && formik.errors[name]) {
-      return formik.errors[name];
+    if (touched && touched[name] && !!errors && errors[name]) {
+      return errors[name];
     }
     return null;
-  }, [formik.errors, formik.touched, name]);
+  }, [errors, touched, name]);
 
   return (
     <View style={styles.wrapper}>
@@ -55,7 +57,7 @@ const DateTimePicker: FC<Props> = ({name, label, required}) => {
           onPress={() => setOpenPicker(true)}
         />
       </View>
-      {error && <Text style={styles.error}>{error}</Text>}
+      {error && <Text style={styles.error}>{error as string}</Text>}
 
       <DatePicker
         date={value ?? new Date()}
@@ -63,7 +65,7 @@ const DateTimePicker: FC<Props> = ({name, label, required}) => {
         open={openPicker}
         onCancel={() => setOpenPicker(false)}
         onConfirm={date => {
-          formik.setFieldValue(name, date);
+          setFieldValue(name as string, dayjs(date).format());
           setOpenPicker(false);
         }}
       />

@@ -1,3 +1,4 @@
+import CalendarHeader from '@/components/CalendarHeader';
 import Icon from '@/components/Icon';
 import {EventsContextProvider} from '@/contexts/EventsContext';
 import Events from '@/screens/Private/Events';
@@ -22,6 +23,11 @@ const PrivateScreens = () => {
     [],
   );
 
+  const EventHeader = useCallback(
+    (props: BottomTabHeaderProps) => <CalendarHeader {...props} />,
+    [],
+  );
+
   const TabBarIcon = useCallback(
     (props: TabBarIconProps & {iconName: string}) => {
       return <TabBarIconComponent {...props} />;
@@ -40,7 +46,7 @@ const PrivateScreens = () => {
           name="Events"
           component={Events}
           options={{
-            header: PrivateHeader,
+            header: EventHeader,
             tabBarIcon: props =>
               TabBarIcon({...props, iconName: 'calendar-outline'}),
             tabBarStyle: styles.tabBarStyle,

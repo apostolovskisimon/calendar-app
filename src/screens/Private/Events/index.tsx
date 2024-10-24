@@ -1,5 +1,4 @@
 import Calendar from '@/components/Calendar/Calendar';
-import {Text} from '@rneui/themed';
 import React from 'react';
 
 type Props = {};

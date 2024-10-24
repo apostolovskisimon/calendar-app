@@ -3,7 +3,7 @@ import {InputProps} from '@/services/types';
 import {Theme} from '@rneui/base';
 import {Input, useTheme} from '@rneui/themed';
 import {useFormikContext} from 'formik';
-import React, {useState, memo} from 'react';
+import React, {useMemo, useState} from 'react';
 import {Keyboard, Pressable, StyleSheet, View} from 'react-native';
 
 const ValidatedInput = <T extends object>({
@@ -14,8 +14,16 @@ const ValidatedInput = <T extends object>({
   placeholder = 'Type here',
   secureTextEntry = false,
   IconRight = undefined,
+  formik,
 }: InputProps<T>) => {
-  const {errors, touched, values, setFieldValue} = useFormikContext<T>();
+  const formikContext = useFormikContext<T>();
+
+  const formikData = useMemo(() => {
+    if (formik) return formik;
+    return formikContext;
+  }, [formik, formikContext]);
+
+  const {values, errors, touched, setFieldValue} = formikData;
 
   const {theme} = useTheme();
   const styles = createStyles(theme);
@@ -47,7 +55,7 @@ const ValidatedInput = <T extends object>({
         }
         placeholder={placeholder}
         keyboardType={keyboardType}
-        secureTextEntry={!showText}
+        secureTextEntry={!showText && secureTextEntry}
         errorMessage={
           touched[name as keyof T] &&
           errors[name as keyof T] &&

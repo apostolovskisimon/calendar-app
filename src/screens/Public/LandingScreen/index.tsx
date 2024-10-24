@@ -26,6 +26,7 @@ const LandingScreen: FC<PublicScreenProps> = ({navigation}) => {
 
   return (
     <KeyboardAwareScrollView
+      keyboardShouldPersistTaps="handled"
       style={styles.page}
       refreshControl={
         // also shows the loading state while waiting or submitting from biometrics

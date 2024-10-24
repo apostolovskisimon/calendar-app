@@ -1,5 +1,6 @@
 import {FirebaseAuthTypes} from '@react-native-firebase/auth';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {FormikProps} from 'formik';
 import {ReactNode} from 'react';
 import {KeyboardTypeOptions} from 'react-native';
 
@@ -21,6 +22,7 @@ export type InputProps<T extends object> = {
   keyboardType?: KeyboardTypeOptions;
   secureTextEntry?: boolean;
   IconRight?: ReactNode;
+  formik?: FormikProps<T>;
 };
 
 export type PublicStackParamList = {
@@ -53,14 +55,8 @@ export type TabBarIconProps = {
 export type User = Partial<FirebaseAuthTypes.User> | null;
 
 export type Event = {
-  id?: string;
-  startDate: Date | null;
-  endDate: Date | null;
-  title: string | null;
-};
-
-export type EventModalState = {
-  open: boolean;
-  id: string | null;
-  startDate: Date | null;
+  id: string;
+  title: string;
+  start: Date | string | null;
+  end: Date | string | null;
 };
