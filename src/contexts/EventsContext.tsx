@@ -1,5 +1,6 @@
 import Drawer from '@/components/Drawer';
 import {showToast} from '@/helpers/toast';
+import {EVENTS} from '@/services/constants';
 import {
   addUserEvent,
   editUserEvent,
@@ -8,6 +9,7 @@ import {
 } from '@/services/firebase/firestore';
 import {showNotification} from '@/services/notifications';
 import {Event} from '@/services/types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, {
   createContext,
   ReactNode,
@@ -77,16 +79,25 @@ const EventsContextProvider = ({children}: {children: ReactNode}) => {
   const getEvents = useCallback(async () => {
     try {
       const savedDocs = await getUserEvents();
-
       const arrEvents = savedDocs?.docs;
 
       const dbEvents: Event[] =
         arrEvents?.map(el => {
           return {...(el.data() as Event), id: el.id};
         }) || [];
+
       setEvents(dbEvents);
+      await AsyncStorage.setItem(EVENTS, JSON.stringify(dbEvents));
       return Promise.resolve(true);
     } catch (error) {
+      // this happens if user is offline, or the request to store failed
+      // in that case show the locally saved events instead
+      const savedEvents = await AsyncStorage.getItem(EVENTS);
+      if (savedEvents) {
+        const parsedEvents: Event[] = JSON.parse(savedEvents);
+        setEvents(parsedEvents);
+      }
+
       showToast('Error', 'error', "Couldn't load events. Try again");
       return Promise.resolve(false);
     }
@@ -100,20 +111,24 @@ const EventsContextProvider = ({children}: {children: ReactNode}) => {
         if (event.id) {
           // save edited to firebase
           await editUserEvent(event.id!, event);
-          // reload data
-          getEvents();
+          const eventsEdited = events.map(el => {
+            if (el.id === event.id) return event; // return modified event
+            return el;
+          });
+          setEvents(eventsEdited);
+          await AsyncStorage.setItem(EVENTS, JSON.stringify(eventsEdited));
           setEventDetails(null);
+          getEvents();
           await showNotification(event.title, 'The event has been modified.');
           return Promise.resolve(true);
         } else {
-          const newEvent: Event = {
-            ...event,
-          };
           // save new to firebase
-          await addUserEvent(newEvent);
-          // reload data
-          getEvents();
+          await addUserEvent(event);
+          const eventsAll = [...events, event];
+          await AsyncStorage.setItem(EVENTS, JSON.stringify(eventsAll));
+          setEvents(eventsAll);
           setEventDetails(null);
+          getEvents();
           await showNotification(event.title, 'Event has been created.');
           return Promise.resolve(true);
         }
@@ -124,23 +139,26 @@ const EventsContextProvider = ({children}: {children: ReactNode}) => {
         setIsSubmitting(false);
       }
     },
-    [getEvents],
+    [events, getEvents],
   );
 
   const deleteEvent = useCallback(
     async (id: string) => {
       try {
+        const filteredEvents = events.filter(el => el.id !== id);
         // remove from firebase
         await removeUserEvent(id);
-        // reload data
-        getEvents();
+        // save locally
+        await AsyncStorage.setItem(EVENTS, JSON.stringify(filteredEvents));
+        setEvents(filteredEvents);
         setEventDetails(null);
+        getEvents();
         showNotification('Event has been deleted', '');
       } catch (error) {
         showToast('Error', 'error', "Couldn't delete event. Try again");
       }
     },
-    [getEvents],
+    [events, getEvents],
   );
 
   useEffect(() => {

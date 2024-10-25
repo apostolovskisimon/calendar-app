@@ -63,8 +63,8 @@ const RegisterForm = () => {
 
   return (
     <KeyboardAwareScrollView
-      style={{marginTop: 30}}
-      keyboardShouldPersistTaps="handled">
+      style={{marginTop: 30, paddingBottom: 30}}
+      keyboardShouldPersistTaps="always">
       <Formik<RegisterData>
         initialValues={initialValues}
         validationSchema={schema}

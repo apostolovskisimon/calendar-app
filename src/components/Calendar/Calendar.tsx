@@ -2,8 +2,13 @@ import CalendarEvent from '@/components/CalendarEvent';
 import {useEvents} from '@/contexts/EventsContext';
 import {Overlay, Text} from '@rneui/themed';
 import dayjs from 'dayjs';
-import React, {useCallback} from 'react';
-import {ScrollView, useWindowDimensions, View} from 'react-native';
+import React, {useCallback, useState} from 'react';
+import {
+  RefreshControl,
+  ScrollView,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import {
   Calendar as BigCalendar,
   ICalendarEventBase,
@@ -13,6 +18,7 @@ type EventMerged = ICalendarEventBase & {id: string};
 
 const Calendar = () => {
   const {height, width} = useWindowDimensions();
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     setEventDetails,
@@ -22,6 +28,7 @@ const Calendar = () => {
     calendarDate,
     setCalendarDate,
     setCalendarMode,
+    getEvents,
   } = useEvents();
 
   const onPressDateHeader = useCallback(
@@ -39,8 +46,23 @@ const Calendar = () => {
     [setCalendarDate],
   );
 
+  const onRefresh = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      getEvents();
+    } catch (error) {
+    } finally {
+      setIsLoading(false);
+    }
+  }, [getEvents]);
+
   return (
-    <View style={{flex: 1}}>
+    <ScrollView
+      contentContainerStyle={{flex: 1}}
+      refreshControl={
+        // also shows the loading state while waiting or submitting from biometrics
+        <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
+      }>
       <Overlay
         isVisible={!!eventDetails}
         overlayStyle={{
@@ -53,7 +75,7 @@ const Calendar = () => {
       <Text style={{textAlign: 'center', marginVertical: 10, fontSize: 20}}>
         {dayjs(calendarDate).format('MMMM YYYY')}
       </Text>
-      <ScrollView style={{flex: 1}}>
+      <View style={{flex: 1}}>
         <BigCalendar
           onPressDateHeader={onPressDateHeader}
           onSwipeEnd={onSwipeEnd}
@@ -86,8 +108,8 @@ const Calendar = () => {
           date={calendarDate}
           showAdjacentMonths
         />
-      </ScrollView>
-    </View>
+      </View>
+    </ScrollView>
   );
 };
 

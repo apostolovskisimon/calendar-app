@@ -12,7 +12,7 @@ const RegisterScreen = () => {
   return (
     <KeyboardAwareScrollView
       style={styles.page}
-      keyboardShouldPersistTaps="handled">
+      keyboardShouldPersistTaps="always">
       <Text style={styles.welcome}>
         Enter your details in order to create an account.
       </Text>

@@ -39,7 +39,7 @@ const CalendarEvent = () => {
 
   return (
     <KeyboardAwareScrollView
-      keyboardShouldPersistTaps="handled"
+      keyboardShouldPersistTaps="always"
       contentContainerStyle={{alignItems: 'center', paddingVertical: 10}}>
       <Text style={{fontSize: 18}}>Event Details</Text>
       <EventForm formik={formik} />

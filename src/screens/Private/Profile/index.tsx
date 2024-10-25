@@ -36,7 +36,7 @@ const Profile = () => {
   return (
     <KeyboardAwareScrollView
       contentContainerStyle={{flex: 1}}
-      keyboardShouldPersistTaps="handled">
+      keyboardShouldPersistTaps="always">
       {user && (
         <Formik
           initialValues={user}

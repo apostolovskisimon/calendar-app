@@ -26,7 +26,7 @@ const LandingScreen: FC<PublicScreenProps> = ({navigation}) => {
 
   return (
     <KeyboardAwareScrollView
-      keyboardShouldPersistTaps="handled"
+      keyboardShouldPersistTaps="always"
       style={styles.page}
       refreshControl={
         // also shows the loading state while waiting or submitting from biometrics
@@ -81,6 +81,7 @@ const createStyles = (theme: Theme) =>
     },
     registerButton: {
       marginTop: 20,
+      marginBottom: 50,
     },
     registerButtonText: {
       color: theme.colors.warning,
