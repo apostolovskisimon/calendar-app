@@ -7,7 +7,7 @@ This means the app only works on Android devices.
 I added some installations for iOS but I couldn't do all fixes there and might have missed some
 stuff due to time constraints and no access to preview.
 
-App only works online, while I do know how to make it offline using NetInfo and listening to state,
+App data is stored in Async Storage as a fallback if the app isn't online, while I do know how to make it offline using NetInfo and listening to state,
 its not a requirement and I'm bound by time.
 
 **Date received of task: Fri, Oct 18, 5:10 PM**
