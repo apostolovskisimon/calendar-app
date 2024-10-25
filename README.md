@@ -35,6 +35,7 @@ its not a requirement and I'm bound by time.
 - Events page is using react-native-big-calendar. Can change between view modes (day, week, month) and option to go to previous page or next.
 - Clicking on an event grid date or an event already created pops up a modal to create/edit/delete.
 - All events are saved and modifiable through **Firebase Cloud Firestore**
+- All events are also saved in **Async Storage** as a fallback to failing loading firestore data.
 - All events are loaded always (can be made to be filtered through Firestore, but not due to time constraints.)
 - Push notifications from notifee (only on CRUD events operations) and toasts for errors/successes are shown.
 - Profile page by default is in view mode, after enabling Edit mode you can modify personal data and password. All submits are biometrics first confirmed.
