@@ -55,7 +55,6 @@ const Calendar = () => {
       </Text>
       <ScrollView style={{flex: 1}}>
         <BigCalendar
-          onChangeDate={([start, end]) => console.log(start, end)}
           onPressDateHeader={onPressDateHeader}
           onSwipeEnd={onSwipeEnd}
           height={height}

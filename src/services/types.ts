@@ -23,6 +23,7 @@ export type InputProps<T extends object> = {
   secureTextEntry?: boolean;
   IconRight?: ReactNode;
   formik?: FormikProps<T>;
+  disabled?: boolean;
 };
 
 export type PublicStackParamList = {

@@ -1,10 +1,15 @@
 import {showToast} from '@/helpers/toast';
 import useBiometrics from '@/hooks/useBiometrics';
 import {IS_USING_BIOMETRICS, USER_DATA} from '@/services/constants';
-import {signInWithEmail} from '@/services/firebase';
+import {
+  logOutUser,
+  signInWithEmail,
+  updateUserEmail,
+  updateUserPassword,
+  updateUserProfile,
+} from '@/services/firebase';
 import {LoginData, User} from '@/services/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {FirebaseAuthTypes} from '@react-native-firebase/auth';
 import {Theme} from '@rneui/base';
 import {Button, Overlay, Text, useTheme} from '@rneui/themed';
 import React, {
@@ -26,6 +31,12 @@ type AuthState = {
     callback: Dispatch<SetStateAction<boolean>>,
   ) => Promise<void>;
   isLoading: boolean;
+  updateProfile: (
+    email: string,
+    displayName: string,
+  ) => Promise<boolean | undefined>;
+  changePassword: (password: string) => Promise<boolean | undefined>;
+  handleLogout: () => Promise<void>;
 };
 
 const initialState: AuthState = {
@@ -33,6 +44,9 @@ const initialState: AuthState = {
   submitCredentials: async () => {},
   askForBiometrics: async () => {},
   isLoading: false,
+  updateProfile: async () => false,
+  changePassword: async () => false,
+  handleLogout: async () => {},
 };
 
 const AuthContext = createContext<AuthState>(initialState);
@@ -48,7 +62,11 @@ const AuthContextProvider = ({children}: {children: ReactNode}) => {
   const [showBiometricsConfirmModal, setShowBiometricsConfirmModal] =
     useState(false);
 
-  const {getCredentialsWithBiometry, saveCredentials} = useBiometrics();
+  const {
+    getCredentialsWithBiometry,
+    saveCredentials,
+    saveCredentialsWithBiometry,
+  } = useBiometrics();
 
   /**
    * Firebase can limit how many times you can login per day,
@@ -64,20 +82,7 @@ const AuthContextProvider = ({children}: {children: ReactNode}) => {
           await AsyncStorage.setItem(USER_DATA, JSON.stringify(userData.user));
           setUser(userData.user);
 
-          // const newUser = {email, password};
-          // await AsyncStorage.setItem(USER_DATA, JSON.stringify(newUser));
-          // setUser(newUser);
-          // if (userData && userData.user) {
-          //   await AsyncStorage.setItem(
-          //     USER_DATA,
-          //     JSON.stringify(userData.user),
-          //   );
-          //   setUser(userData.user);
-          //   // returns for landing screen callback
           return Promise.resolve(userData.user);
-
-          // navigate to public stack
-          // }
         } catch (error: any) {
           showToast('Error', 'error', error.userInfo?.message);
           return Promise.reject(error.userInfo?.message);
@@ -157,14 +162,6 @@ const AuthContextProvider = ({children}: {children: ReactNode}) => {
           IS_USING_BIOMETRICS,
         );
 
-        // if user has previously selected to use biometrics,
-        // but cancelled
-
-        if (isUsingBiometrics === 'true') {
-          askForBiometrics();
-          return;
-        }
-
         // if user doesnt use biometrics then manual login
         if (isUsingBiometrics === 'false') {
           return userContinuesWithoutBiometrics();
@@ -175,12 +172,89 @@ const AuthContextProvider = ({children}: {children: ReactNode}) => {
         if (isUsingBiometrics == null) {
           return setShowBiometricsConfirmModal(true);
         }
+        loginToFirebase(email, password);
       } catch (error: any) {
         showToast('Error', 'error', 'Something went wrong.');
       }
     },
-    [askForBiometrics, userContinuesWithoutBiometrics],
+    [loginToFirebase, userContinuesWithoutBiometrics],
   );
+
+  const updateProfile = useCallback(
+    async (email: string, displayName: string) => {
+      try {
+        setIsLoading(true);
+        const credentials = await getCredentialsWithBiometry(
+          'Confirm it is you.',
+        );
+        if (credentials) {
+          const {password: savedPassword, username: savedEmail} = credentials;
+          // silent reauthenticate to refresh token
+          const rellogedUser = await loginToFirebase(savedEmail, savedPassword);
+
+          if (rellogedUser) {
+            await Promise.all([
+              updateUserEmail(email),
+              updateUserProfile(displayName),
+            ]);
+            // if success (both return void)
+            const updatedUser = {...rellogedUser, email, displayName};
+            setUser(updatedUser);
+            await AsyncStorage.setItem(USER_DATA, JSON.stringify(updatedUser));
+            // update keychain with new email
+            await saveCredentialsWithBiometry(email, savedPassword, true);
+            showToast('Success', 'success', 'Your profile has been updated.');
+            return Promise.resolve(true);
+          }
+        }
+
+        // both functions return void so, we assume it updated succeess
+      } catch (error: any) {
+        showToast('Error', 'error', 'Updating failed. Try again');
+        return Promise.resolve(false);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [getCredentialsWithBiometry, loginToFirebase, saveCredentialsWithBiometry],
+  );
+
+  const changePassword = useCallback(
+    async (password: string) => {
+      try {
+        const credentials = await getCredentialsWithBiometry(
+          'Confirm it is you.',
+        );
+        if (credentials) {
+          const {password: savedPassword, username: savedEmail} = credentials;
+          // firebase requires login again before submit for change sensitive info
+          const rellogedUser = await loginToFirebase(savedEmail, savedPassword);
+
+          // if success, returns void
+          await updateUserPassword(password);
+          // update keychain with new password
+          await saveCredentialsWithBiometry(
+            rellogedUser?.email!,
+            password,
+            true,
+          );
+          showToast('Success', 'success', 'Your Password has been updated.');
+          return Promise.resolve(true);
+        }
+      } catch (error) {
+        console.log('error', error);
+        showToast('Error', 'error', 'Updating failed. Try again');
+        return Promise.resolve(false);
+      }
+    },
+    [getCredentialsWithBiometry, loginToFirebase, saveCredentialsWithBiometry],
+  );
+
+  const handleLogout = useCallback(async () => {
+    await logOutUser();
+    await AsyncStorage.removeItem(USER_DATA);
+    setUser(null);
+  }, []);
 
   useEffect(() => {
     const getBiometricsIfSaved = async () => {
@@ -190,7 +264,9 @@ const AuthContextProvider = ({children}: {children: ReactNode}) => {
       }
     };
     getBiometricsIfSaved();
-  }, [askForBiometrics]);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const {theme} = useTheme();
   const styles = createStyles(theme);
@@ -201,6 +277,9 @@ const AuthContextProvider = ({children}: {children: ReactNode}) => {
         submitCredentials,
         askForBiometrics,
         isLoading,
+        updateProfile,
+        changePassword,
+        handleLogout,
       }}>
       {showBiometricsConfirmModal && (
         <Overlay

@@ -3,7 +3,6 @@ import {IS_USING_BIOMETRICS} from '@/services/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useCallback} from 'react';
 import * as Keychain from 'react-native-keychain';
-import uuid from 'react-native-uuid';
 
 const useBiometrics = () => {
   const getSupportedBiometrics = useCallback(async () => {
@@ -16,13 +15,14 @@ const useBiometrics = () => {
   }, []);
 
   const saveCredentialsWithBiometry = useCallback(
-    async (email: string, password: string) => {
+    async (email: string, password: string, isUpdate: boolean = false) => {
       try {
         await Keychain.setGenericPassword(email, password, {
           accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY,
           accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED,
         });
-        showToast('Success', 'success', 'You are using biometrics.');
+        !isUpdate &&
+          showToast('Success', 'success', 'You are using biometrics.');
         await AsyncStorage.setItem(IS_USING_BIOMETRICS, 'true');
         return Promise.resolve(true);
       } catch (error: any) {
@@ -38,29 +38,32 @@ const useBiometrics = () => {
     [],
   );
   // Function to retrieve credentials with biometric authentication
-  const getCredentialsWithBiometry = useCallback(async () => {
-    try {
-      const credentials = await Keychain.getGenericPassword({
-        accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY,
-        authenticationPrompt: {
-          title: 'Scan biometrics to log in.',
-        },
-      });
-      return credentials;
-    } catch (error: any) {
-      showToast('Error', 'error', error.message);
-      if (error.message.includes('authentication failed')) {
-        showToast('Failed', 'error', error.message);
-      } else {
-        showToast('Error', 'error', 'An error occured. Try again.');
+  const getCredentialsWithBiometry = useCallback(
+    async (title: string = 'Scan biometrics to log in.') => {
+      try {
+        const credentials = await Keychain.getGenericPassword({
+          accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY,
+          authenticationPrompt: {
+            title,
+          },
+        });
+        return credentials;
+      } catch (error: any) {
+        showToast('Error', 'error', error.message);
+        if (error.message.includes('authentication failed')) {
+          showToast('Failed', 'error', error.message);
+        } else {
+          showToast('Error', 'error', 'An error occured. Try again.');
+        }
+        return null;
       }
-      return null;
-    }
-  }, []);
+    },
+    [],
+  );
 
   const saveCredentials = useCallback(
     async (email: string, password: string) => {
-      const biometrySupported = await getSupportedBiometrics();
+      // const biometrySupported = await getSupportedBiometrics();
 
       // TODO: Check for support?
       // if (biometrySupported) {
@@ -68,9 +71,14 @@ const useBiometrics = () => {
       return await saveCredentialsWithBiometry(email, password);
       // }
     },
-    [getSupportedBiometrics, saveCredentialsWithBiometry],
+    [saveCredentialsWithBiometry],
   );
-  return {saveCredentials, getCredentialsWithBiometry, getSupportedBiometrics};
+  return {
+    saveCredentials,
+    getCredentialsWithBiometry,
+    getSupportedBiometrics,
+    saveCredentialsWithBiometry,
+  };
 };
 
 export default useBiometrics;

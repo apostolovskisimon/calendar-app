@@ -10,8 +10,8 @@ import {PASSWORD_REGEX} from '@/services/constants';
 import {useAuth} from '@/contexts/AuthContext';
 
 const initialValues: LoginData = {
-  email: 'apostolovskisimon@gmail.com',
-  password: 'Apostolot1!',
+  email: '',
+  password: '',
 };
 
 const schema = Yup.object().shape({

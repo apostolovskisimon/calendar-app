@@ -15,6 +15,7 @@ const ValidatedInput = <T extends object>({
   secureTextEntry = false,
   IconRight = undefined,
   formik,
+  disabled = false,
 }: InputProps<T>) => {
   const formikContext = useFormikContext<T>();
 
@@ -46,8 +47,10 @@ const ValidatedInput = <T extends object>({
               pressRetentionOffset={12}
               hitSlop={12}
               onPress={() => {
-                setShowText(prev => !prev);
-                Keyboard.dismiss();
+                if (!disabled) {
+                  setShowText(prev => !prev);
+                  Keyboard.dismiss();
+                }
               }}>
               <Icon name={showText ? 'eye-off-outline' : 'eye-outline'} />
             </Pressable>
@@ -62,6 +65,8 @@ const ValidatedInput = <T extends object>({
           (errors[name as keyof T] as string)
         }
         errorStyle={styles.error}
+        disabled={disabled}
+        readOnly={disabled}
       />
     </View>
   );
