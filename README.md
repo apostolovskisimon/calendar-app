@@ -14,6 +14,8 @@ its not a requirement and I'm bound by time.
 
 **Date submission of task: Fri, Oct 25, 5:30 PM**
 
+**All tasks/subtasks done _except_ subtask 5 (Google Calendar API integration).**
+
 ## My setup
 
 - Android SDK 14 and Build Tools v14.
