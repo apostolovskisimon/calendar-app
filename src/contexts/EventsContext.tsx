@@ -1,9 +1,12 @@
 import Drawer from '@/components/Drawer';
-import {useAuth} from '@/contexts/AuthContext';
 import {showToast} from '@/helpers/toast';
-import {EVENTS} from '@/services/constants';
+import {
+  addUserEvent,
+  editUserEvent,
+  getUserEvents,
+  removeUserEvent,
+} from '@/services/firebase/firestore';
 import {Event} from '@/services/types';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import dayjs from 'dayjs';
 import React, {
   createContext,
@@ -52,7 +55,6 @@ const initialState: EventsState = {
 const EventsContext = createContext<EventsState>(initialState);
 
 const EventsContextProvider = ({children}: {children: ReactNode}) => {
-  const {user} = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -72,33 +74,44 @@ const EventsContextProvider = ({children}: {children: ReactNode}) => {
 
   const drawerRef = useRef<DrawerLayoutAndroid>(null);
 
+  const getEvents = useCallback(async () => {
+    try {
+      const savedDocs = await getUserEvents();
+
+      const arrEvents = savedDocs?.docs;
+
+      const dbEvents: Event[] =
+        arrEvents?.map(el => {
+          return {...(el.data() as Event), id: el.id};
+        }) || [];
+      setEvents(dbEvents);
+      return Promise.resolve(true);
+    } catch (error) {
+      showToast('Error', 'error', "Couldn't load events. Try again");
+      return Promise.resolve(false);
+    }
+  }, []);
+
   const submitEvent = useCallback(
     async (event: Event) => {
       setIsSubmitting(true);
       try {
         // is edit mode
         if (event.id) {
-          const editedEvents = events.map(el => {
-            if (el.id === event.id) {
-              return {...event};
-            }
-            return el;
-          });
-
-          setEvents(editedEvents);
-          await AsyncStorage.setItem(EVENTS, JSON.stringify(editedEvents));
+          // save edited to firebase
+          await editUserEvent(event.id!, event);
+          // reload data
+          getEvents();
           setEventDetails(null);
           return Promise.resolve(true);
         } else {
-          const id = dayjs().unix().toString(); // unix to act as a unique id
-
           const newEvent: Event = {
             ...event,
-            id,
           };
-          const newEvents = [...events, newEvent];
-          setEvents(newEvents);
-          await AsyncStorage.setItem(EVENTS, JSON.stringify(newEvents));
+          // save new to firebase
+          await addUserEvent(newEvent);
+          // reload data
+          getEvents();
           setEventDetails(null);
           return Promise.resolve(true);
         }
@@ -109,37 +122,23 @@ const EventsContextProvider = ({children}: {children: ReactNode}) => {
         setIsSubmitting(false);
       }
     },
-    [events],
+    [getEvents],
   );
 
   const deleteEvent = useCallback(
     async (id: string) => {
       try {
-        const filteredEvents = events.filter(el => el.id !== id);
-        setEvents(filteredEvents);
-        await AsyncStorage.setItem(EVENTS, JSON.stringify(filteredEvents));
+        // remove from firebase
+        await removeUserEvent(id);
+        // reload data
+        getEvents();
         setEventDetails(null);
       } catch (error) {
         showToast('Error', 'error', "Couldn't delete event. Try again");
       }
     },
-    [events],
+    [getEvents],
   );
-
-  const getEvents = useCallback(async () => {
-    try {
-      const savedEvents = await AsyncStorage.getItem(EVENTS);
-      if (savedEvents) {
-        const parsedEvents = JSON.parse(savedEvents) as Event[];
-        setEvents(parsedEvents);
-        return Promise.resolve(true);
-      }
-      return Promise.resolve(false);
-    } catch (error) {
-      showToast('Error', 'error', "Couldn't load events. Try again");
-      return Promise.resolve(false);
-    }
-  }, []);
 
   useEffect(() => {
     getEvents();

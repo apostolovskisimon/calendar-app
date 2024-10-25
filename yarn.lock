@@ -1511,6 +1511,11 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
+"@notifee/react-native@^9.1.2":
+  version "9.1.2"
+  resolved "https://registry.npmjs.org/@notifee/react-native/-/react-native-9.1.2.tgz"
+  integrity sha512-oUabHwBtu7Zkos898mZkFb3t1by7PPJmXAWS5Kl5VQSxjNUyVA9kk6a1p31TUDKCkV083tN33scT+cyLnyKMzw==
+
 "@protobufjs/aspromise@^1.1.1", "@protobufjs/aspromise@^1.1.2":
   version "1.1.2"
   resolved "https://registry.npmjs.org/@protobufjs/aspromise/-/aspromise-1.1.2.tgz"
@@ -1691,7 +1696,7 @@
     prompts "^2.4.2"
     semver "^7.5.2"
 
-"@react-native-firebase/app@^21.0.0", "@react-native-firebase/app@21.0.0":
+"@react-native-firebase/app@^21.0.0", "@react-native-firebase/app@21.0.0", "@react-native-firebase/app@21.2.0":
   version "21.0.0"
   resolved "https://registry.npmjs.org/@react-native-firebase/app/-/app-21.0.0.tgz"
   integrity sha512-CR7KMAWb5uKYyjvWlFdMYrchNF+8XXOk+hnDYcIe+jsHTu+L2tCBzmgE9U0RMUEOdJBIPQotAdnenVdipEbbUg==
@@ -1705,6 +1710,16 @@
   integrity sha512-aCWg60DmbeZio6m8/tN2wBU3uMmYUzlAqP5DMlA3r8FrKTmmtVTrnDjY1PAyC+0yRTAOH2fbKW6HN5kRKndGLQ==
   dependencies:
     plist "^3.1.0"
+
+"@react-native-firebase/firestore@^21.2.0":
+  version "21.2.0"
+  resolved "https://registry.npmjs.org/@react-native-firebase/firestore/-/firestore-21.2.0.tgz"
+  integrity sha512-qfN4qu4w2ZMCskkFUdyTjzq9U7EYiA2q38rRzkrv0Wkd6p5SzHtHW147YW0H67/MxELOBeI6yGTnKt56BKlxMA==
+
+"@react-native-firebase/messaging@^21.2.0":
+  version "21.2.0"
+  resolved "https://registry.npmjs.org/@react-native-firebase/messaging/-/messaging-21.2.0.tgz"
+  integrity sha512-KB6/sBREqloeU3ehAxEE/jeyV8WFLBxxp2wFewxImbGfWGgv/HS7opexgAEhugb50lAhx4v4ZQQMTYVD+ghS/w==
 
 "@react-native/assets-registry@0.75.4":
   version "0.75.4"

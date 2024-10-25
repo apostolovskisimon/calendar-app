@@ -40,7 +40,7 @@ const EventForm: FC<Props> = ({formik}) => {
             title="Delete?"
             onPress={() => {
               Keyboard.dismiss();
-              deleteEvent(formik.values.id);
+              deleteEvent(formik.values.id!);
             }}
             color={'error'}
             containerStyle={{alignSelf: 'center', width: 100}}

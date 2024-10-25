@@ -56,8 +56,8 @@ export type TabBarIconProps = {
 export type User = Partial<FirebaseAuthTypes.User> | null;
 
 export type Event = {
-  id: string;
   title: string;
   start: Date | string | null;
   end: Date | string | null;
+  id: string;
 };

@@ -76,6 +76,7 @@ const Calendar = () => {
           }}
           events={(events as EventMerged[]).map(event => ({
             ...event,
+            id: event.id,
             start: dayjs(event.start).toDate(),
             end: dayjs(event.end).toDate(),
           }))}
