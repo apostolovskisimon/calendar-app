@@ -6,8 +6,8 @@ import {
   getUserEvents,
   removeUserEvent,
 } from '@/services/firebase/firestore';
+import {showNotification} from '@/services/notifications';
 import {Event} from '@/services/types';
-import dayjs from 'dayjs';
 import React, {
   createContext,
   ReactNode,
@@ -103,6 +103,7 @@ const EventsContextProvider = ({children}: {children: ReactNode}) => {
           // reload data
           getEvents();
           setEventDetails(null);
+          await showNotification(event.title, 'The event has been modified.');
           return Promise.resolve(true);
         } else {
           const newEvent: Event = {
@@ -113,6 +114,7 @@ const EventsContextProvider = ({children}: {children: ReactNode}) => {
           // reload data
           getEvents();
           setEventDetails(null);
+          await showNotification(event.title, 'Event has been created.');
           return Promise.resolve(true);
         }
       } catch (error) {
@@ -133,6 +135,7 @@ const EventsContextProvider = ({children}: {children: ReactNode}) => {
         // reload data
         getEvents();
         setEventDetails(null);
+        showNotification('Event has been deleted', '');
       } catch (error) {
         showToast('Error', 'error', "Couldn't delete event. Try again");
       }

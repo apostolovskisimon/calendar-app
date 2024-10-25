@@ -29,9 +29,6 @@ export type InputProps<T extends object> = {
 export type PublicStackParamList = {
   Welcome: undefined;
   Register: undefined;
-  'Complete Registration': {
-    email: string;
-  };
 };
 
 export type PublicScreenProps = NativeStackScreenProps<PublicStackParamList>;

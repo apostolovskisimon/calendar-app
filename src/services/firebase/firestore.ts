@@ -4,6 +4,7 @@ import {Event} from '@/services/types';
 
 const eventsCollection = firestore().collection('events');
 
+// get events saved in db by user id
 const getUserEvents = () => {
   const userId = auth().currentUser?.uid;
   if (userId) {
@@ -11,6 +12,7 @@ const getUserEvents = () => {
   }
 };
 
+// push a new event
 const addUserEvent = (event: Event) => {
   const userId = auth().currentUser?.uid;
   if (userId) {
@@ -18,6 +20,7 @@ const addUserEvent = (event: Event) => {
   }
 };
 
+// edit an event
 const editUserEvent = (id: string, event: Event) => {
   const userId = auth().currentUser?.uid;
   if (userId) {
@@ -25,6 +28,7 @@ const editUserEvent = (id: string, event: Event) => {
   }
 };
 
+// emove event
 const removeUserEvent = (id: string) => {
   const userId = auth().currentUser?.uid;
   if (userId) {

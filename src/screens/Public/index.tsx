@@ -1,5 +1,4 @@
 import Header from '@/components/Header';
-import CompleteRegistration from '@/screens/Public/CompleteRegistration';
 import RegisterScreen from '@/screens/Public/RegisterScreen';
 import LandingScreen from '@/screens/Public/LandingScreen';
 import {
@@ -15,7 +14,7 @@ const PublicScreens = () => {
     return <Header {...props} />;
   }, []);
 
-  const HeaderComponentWelcome = useCallback(
+  const HeaderComponentLanding = useCallback(
     (props: NativeStackHeaderProps) => {
       return <Header isisLandingScreen {...props} />;
     },
@@ -31,19 +30,12 @@ const PublicScreens = () => {
         name="Welcome"
         component={LandingScreen}
         options={{
-          header: HeaderComponentWelcome,
+          header: HeaderComponentLanding,
         }}
       />
       <Stack.Screen
         name="Register"
         component={RegisterScreen}
-        options={{
-          header: HeaderComponent,
-        }}
-      />
-      <Stack.Screen
-        name="Complete Registration"
-        component={CompleteRegistration}
         options={{
           header: HeaderComponent,
         }}

@@ -22,7 +22,6 @@ const Header: FC<BottomTabHeaderProps & Props> = ({
   },
   route,
   centerText = route.name,
-  rightText,
 }) => {
   const {onOpenDrawer, calendarMode, calendarDate, setCalendarDate} =
     useEvents();

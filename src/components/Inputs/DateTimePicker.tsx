@@ -7,7 +7,7 @@ import {StyleSheet, View} from 'react-native';
 import DatePicker from 'react-native-date-picker';
 
 type Props<T extends object> = {
-  name: keyof T; // hard coded, but should be dynamic
+  name: keyof T;
   label: string;
   required?: boolean;
   formik: FormikProps<T>;

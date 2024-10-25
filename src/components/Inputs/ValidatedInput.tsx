@@ -19,6 +19,7 @@ const ValidatedInput = <T extends object>({
 }: InputProps<T>) => {
   const formikContext = useFormikContext<T>();
 
+  // formik cries(warns) that its not in a context, but for time sake i accept this
   const formikData = useMemo(() => {
     if (formik) return formik;
     return formikContext;
